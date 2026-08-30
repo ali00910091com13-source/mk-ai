@@ -1,0 +1,755 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>نقش‌ساز | ساخت عکس با هوش مصنوعی واقعی از متن</title>
+<meta name="description" content="نقش‌ساز — متن فارسی بنویس و با هوش مصنوعی واقعی (مدل Flux) تصویر تحویل بگیر؛ رایگان، آنلاین و بدون ثبت‌نام">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fontsource/vazirmatn@5/400.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fontsource/vazirmatn@5/500.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fontsource/vazirmatn@5/700.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fontsource/vazirmatn@5/800.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fontsource/vazirmatn@5/900.css">
+<style>
+:root{
+  --bg:#0a0e16; --bg2:#0e1320; --card:#121828; --card2:#1a2236;
+  --line:rgba(56,189,248,.16); --cyan:#22d3ee; --violet:#8b5cf6; --amber:#fbbf24; --green:#34d399;
+  --text:#e8edf6; --dim:#8b96ad; --grad:linear-gradient(135deg,var(--cyan),var(--violet));
+  --shadow:0 18px 50px rgba(0,0,0,.5);
+}
+*{margin:0;padding:0;box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{background:var(--bg);color:var(--text);font-family:'Vazirmatn',sans-serif;line-height:1.9;overflow-x:hidden;
+  background-image:radial-gradient(900px 460px at 85% -10%,rgba(34,211,238,.1),transparent 60%),radial-gradient(700px 400px at 0% 30%,rgba(139,92,246,.09),transparent 60%)}
+img{display:block;max-width:100%}
+a{color:inherit;text-decoration:none}
+button{font-family:inherit;cursor:pointer}
+::selection{background:var(--cyan);color:#04121a}
+::-webkit-scrollbar{width:10px}::-webkit-scrollbar-track{background:var(--bg)}
+::-webkit-scrollbar-thumb{background:#2a3550;border-radius:6px}
+.wrap{max-width:1180px;margin:0 auto;padding:0 20px}
+.hidden{display:none!important}
+
+/* هدر */
+header{position:sticky;top:0;z-index:90;background:rgba(10,14,22,.86);backdrop-filter:blur(14px);border-bottom:1px solid var(--line);transition:.3s}
+header.scrolled{box-shadow:0 10px 30px rgba(0,0,0,.45)}
+.nav{display:flex;align-items:center;gap:18px;padding:13px 20px;max-width:1180px;margin:0 auto}
+.logo{display:flex;align-items:center;gap:11px;font-size:21px;font-weight:900}
+.logo .mark{width:46px;height:46px;border-radius:14px;background:var(--grad);display:grid;place-items:center;box-shadow:0 8px 24px rgba(34,211,238,.4)}
+.logo i{font-style:normal;color:var(--cyan)}
+.ai-pill{display:inline-flex;align-items:center;gap:6px;background:rgba(52,211,153,.12);border:1px solid rgba(52,211,153,.4);color:var(--green);border-radius:999px;padding:4px 14px;font-size:11px;font-weight:900}
+.ai-pill .dot{width:8px;height:8px;border-radius:50%;background:var(--green);box-shadow:0 0 0 0 rgba(52,211,153,.6);animation:pl 1.8s infinite}
+@keyframes pl{70%{box-shadow:0 0 0 8px rgba(52,211,153,0)}100%{box-shadow:0 0 0 0 rgba(52,211,153,0)}}
+.nav-links{display:flex;gap:4px;margin-inline-start:auto}
+.nav-links a{padding:9px 14px;border-radius:10px;font-size:14px;font-weight:700;color:var(--dim);transition:.2s}
+.nav-links a:hover{color:#fff;background:rgba(34,211,238,.1)}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:10px;border:none;border-radius:13px;font-weight:800;font-size:15px;padding:14px 28px;transition:.25s}
+.btn-grad{background:var(--grad);color:#04121a;box-shadow:0 10px 28px rgba(34,211,238,.35)}
+.btn-grad:hover{transform:translateY(-3px);box-shadow:0 16px 36px rgba(34,211,238,.5)}
+.btn-line{background:transparent;border:2px solid var(--line);color:var(--text)}
+.btn-line:hover{border-color:var(--cyan);background:rgba(34,211,238,.07)}
+@media(max-width:860px){.nav-links{display:none}}
+
+/* هیرو */
+.hero{padding:56px 0 36px}
+.hero .wrap{display:grid;grid-template-columns:1.02fr .98fr;gap:44px;align-items:center}
+.hero-chip{display:inline-flex;gap:8px;align-items:center;background:rgba(34,211,238,.1);border:1px solid var(--line);border-radius:999px;padding:7px 18px;font-size:12.5px;font-weight:800;color:#a5ecf8;margin-bottom:18px}
+.hero h1{font-size:clamp(28px,4.6vw,46px);font-weight:900;line-height:1.7}
+.hero h1 em{font-style:normal;background:var(--grad);-webkit-background-clip:text;background-clip:text;color:transparent}
+.hero p{color:var(--dim);font-size:15px;margin:14px 0 26px;max-width:530px}
+.hero-actions{display:flex;gap:12px;flex-wrap:wrap;margin-bottom:28px}
+.hero-stats{display:flex;gap:28px;flex-wrap:wrap}
+.hstat b{display:block;font-size:22px;font-weight:900;color:#fff}
+.hstat b i{font-style:normal;color:var(--cyan)}
+.hstat span{font-size:12px;color:var(--dim)}
+.hero-visual{position:relative}
+.hero-visual img{border-radius:26px;box-shadow:var(--shadow);width:100%;height:420px;object-fit:cover;border:1px solid var(--line)}
+.hero-float{position:absolute;background:rgba(14,19,32,.92);backdrop-filter:blur(8px);border:1px solid var(--line);border-radius:14px;padding:11px 16px;display:flex;gap:10px;align-items:center;font-size:12.5px;font-weight:800;animation:flt 5s ease-in-out infinite}
+.hf1{top:20px;inset-inline-start:-14px}
+.hf2{bottom:24px;inset-inline-end:-10px;animation-delay:1.5s}
+@keyframes flt{50%{transform:translateY(-10px)}}
+@media(max-width:960px){.hero .wrap{grid-template-columns:1fr}.hero-visual img{height:300px}}
+
+/* استودیو */
+.studio{padding:26px 0 50px}
+.sec-head{text-align:center;margin-bottom:32px}
+.sec-head small{color:var(--cyan);font-weight:900;font-size:13px}
+.sec-head h2{font-size:clamp(22px,3vw,30px);font-weight:900;margin-top:4px}
+.sec-head p{color:var(--dim);font-size:13.5px;max-width:640px;margin:8px auto 0}
+.studio-grid{display:grid;grid-template-columns:.92fr 1.08fr;gap:22px}
+@media(max-width:960px){.studio-grid{grid-template-columns:1fr}}
+.panel{background:var(--card);border:1px solid var(--line);border-radius:22px;padding:24px}
+.panel h3{font-size:15px;font-weight:900;display:flex;align-items:center;gap:10px;margin-bottom:16px}
+.panel h3 .ic{width:36px;height:36px;border-radius:11px;background:rgba(34,211,238,.12);display:grid;place-items:center;font-size:16px}
+.prompt-row{display:flex;gap:8px}
+textarea{flex:1;background:var(--bg2);border:1.5px solid var(--line);border-radius:14px;padding:14px;color:var(--text);font-family:inherit;font-size:14px;line-height:2;outline:none;resize:vertical;min-height:96px;transition:.2s}
+textarea:focus{border-color:var(--cyan);box-shadow:0 0 0 4px rgba(34,211,238,.12)}
+#diceBtn{width:48px;border-radius:14px;border:1.5px solid var(--line);background:var(--bg2);font-size:20px;transition:.2s;flex:0 0 auto}
+#diceBtn:hover{border-color:var(--amber);transform:rotate(20deg)}
+.grp-label{font-size:12px;font-weight:800;color:var(--dim);margin:16px 0 8px;display:flex;align-items:center;gap:8px}
+.grp-label .hint{color:#5f6a84;font-weight:500}
+.engine-row{display:flex;gap:8px;flex-wrap:wrap}
+.eng{flex:1;min-width:130px;border:1.5px solid var(--line);background:var(--bg2);border-radius:12px;padding:9px 12px;font-size:12px;font-weight:800;color:var(--dim);transition:.2s;text-align:center}
+.eng.active{border-color:var(--green);background:rgba(52,211,153,.1);color:var(--green)}
+.eng.off.active{border-color:var(--amber);background:rgba(251,191,36,.1);color:var(--amber)}
+.styles{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
+.style-chip{border:1.5px solid var(--line);background:var(--bg2);border-radius:12px;padding:10px 4px;text-align:center;font-size:11px;font-weight:800;color:var(--dim);transition:.2s}
+.style-chip .em{display:block;font-size:19px;margin-bottom:2px}
+.style-chip:hover{border-color:var(--cyan);color:#fff}
+.style-chip.active{background:var(--grad);border-color:transparent;color:#04121a}
+.ratios{display:flex;gap:8px}
+.ratio{flex:1;border:1.5px solid var(--line);background:var(--bg2);border-radius:12px;padding:9px 6px;text-align:center;font-size:12px;font-weight:800;color:var(--dim);transition:.2s}
+.ratio .box{display:inline-block;border:1.5px solid currentColor;border-radius:3px;margin-inline-end:6px;vertical-align:-2px}
+.ratio:hover{border-color:var(--cyan)}
+.ratio.active{border-color:var(--cyan);background:rgba(34,211,238,.1);color:var(--cyan)}
+.opt-row{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-top:14px}
+.switch{display:inline-flex;align-items:center;gap:8px;font-size:12px;font-weight:800;color:var(--dim);cursor:pointer;user-select:none}
+.switch input{accent-color:var(--cyan);width:16px;height:16px}
+select.mini{background:var(--bg2);border:1.5px solid var(--line);border-radius:10px;color:var(--text);font-family:inherit;font-size:12px;padding:7px 12px;outline:none}
+.gen-btn{width:100%;margin-top:18px;padding:16px;font-size:16px;border-radius:14px}
+.gen-btn:disabled{opacity:.55;cursor:not-allowed}
+
+/* نتیجه */
+.result{position:relative;background:var(--card);border:1px solid var(--line);border-radius:22px;padding:20px;display:flex;flex-direction:column;min-height:500px}
+.canvas-wrap{flex:1;display:grid;place-items:center;background:var(--bg2);border-radius:16px;overflow:hidden;position:relative;min-height:360px}
+#artCanvas{max-width:100%;max-height:480px;border-radius:8px}
+.placeholder{position:absolute;inset:0;display:grid;place-items:center;text-align:center;color:var(--dim);padding:20px}
+.placeholder .em{font-size:52px;margin-bottom:10px;display:block}
+.loading{position:absolute;inset:0;background:rgba(10,14,22,.94);backdrop-filter:blur(6px);display:none;flex-direction:column;align-items:center;justify-content:center;gap:14px;z-index:3;text-align:center;padding:20px}
+.loading.on{display:flex}
+.spinner{width:64px;height:64px;border-radius:50%;border:4px solid rgba(34,211,238,.2);border-top-color:var(--cyan);animation:sp 1s linear infinite}
+@keyframes sp{to{transform:rotate(360deg)}}
+#loadStep{font-size:14px;font-weight:800;color:#a5ecf8;max-width:400px}
+#loadTimer{font-size:11.5px;color:var(--dim)}
+.load-bar{width:min(300px,80%);height:7px;border-radius:6px;background:rgba(34,211,238,.15);overflow:hidden}
+.load-bar i{display:block;height:100%;width:0;background:var(--grad);transition:width .6s}
+.res-actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:14px;justify-content:center}
+.res-actions button{border:1.5px solid var(--line);background:var(--bg2);color:var(--text);border-radius:12px;padding:11px 20px;font-size:13px;font-weight:800;transition:.2s}
+.res-actions button:hover{border-color:var(--cyan);color:var(--cyan)}
+.res-actions .primary{background:var(--grad);border:none;color:#04121a}
+.res-actions .primary:hover{color:#04121a;transform:translateY(-2px)}
+
+/* نمونه‌کارها */
+.showcase{padding:0 0 50px}
+.sc-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:16px}
+.sc-card{position:relative;border-radius:18px;overflow:hidden;cursor:pointer;border:1px solid var(--line);transition:.3s;aspect-ratio:3/4}
+.sc-card img{width:100%;height:100%;object-fit:cover;transition:.6s}
+.sc-card:hover{transform:translateY(-6px);box-shadow:var(--shadow);border-color:var(--cyan)}
+.sc-card:hover img{transform:scale(1.08)}
+.sc-card .ov{position:absolute;inset:0;background:linear-gradient(to top,rgba(6,9,15,.92),transparent 55%);display:flex;flex-direction:column;justify-content:flex-end;padding:14px}
+.sc-card .st{align-self:flex-start;background:var(--grad);color:#04121a;font-size:10px;font-weight:900;border-radius:6px;padding:2px 10px;margin-bottom:6px}
+.sc-card b{font-size:12.5px;line-height:1.8}
+@media(max-width:860px){.sc-grid{grid-template-columns:repeat(2,1fr)}}
+
+/* گالری */
+.gallery{padding:0 0 50px}
+.gal-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(170px,1fr));gap:14px}
+.gal-item{position:relative;border-radius:16px;overflow:hidden;border:1px solid var(--line);cursor:pointer;transition:.25s;background:var(--card)}
+.gal-item:hover{border-color:var(--cyan);transform:translateY(-4px)}
+.gal-item img{width:100%;aspect-ratio:1;object-fit:cover}
+.gal-item .gp{padding:8px 10px;font-size:10.5px;color:var(--dim);overflow:hidden;white-space:nowrap;text-overflow:ellipsis}
+.gal-item .del{position:absolute;top:8px;inset-inline-start:8px;width:30px;height:30px;border-radius:9px;border:none;background:rgba(10,14,22,.75);color:#fff;font-size:12px;opacity:0;transition:.2s}
+.gal-item:hover .del{opacity:1}
+.gal-item .del:hover{background:#dc2626}
+.gal-empty{grid-column:1/-1;text-align:center;color:var(--dim);border:2px dashed var(--line);border-radius:18px;padding:40px 20px;font-size:13px}
+
+/* مراحل */
+.steps{padding:0 0 50px}
+.steps-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:20px}
+.step{background:var(--card);border:1px solid var(--line);border-radius:20px;padding:28px 22px;text-align:center;position:relative;transition:.3s}
+.step:hover{transform:translateY(-6px);border-color:var(--cyan);box-shadow:var(--shadow)}
+.step .n{position:absolute;top:-18px;inset-inline-start:50%;transform:translateX(50%);width:40px;height:40px;border-radius:50%;background:var(--grad);color:#04121a;font-weight:900;display:grid;place-items:center;border:4px solid var(--bg)}
+.step .ic{font-size:36px;margin:8px 0}
+.step b{display:block;font-size:15px;margin-bottom:6px}
+.step span{font-size:12.5px;color:var(--dim)}
+@media(max-width:860px){.steps-grid{grid-template-columns:1fr}}
+
+/* تعرفه‌ها */
+.plans{padding:0 0 56px}
+.plan-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:20px}
+.plan{background:var(--card);border:1px solid var(--line);border-radius:22px;padding:30px 26px;display:flex;flex-direction:column;transition:.3s;position:relative}
+.plan:hover{transform:translateY(-6px);box-shadow:var(--shadow)}
+.plan.hot{border-color:var(--cyan);background:linear-gradient(180deg,rgba(34,211,238,.07),var(--card))}
+.plan .tag{position:absolute;top:-14px;inset-inline-start:50%;transform:translateX(50%);background:var(--grad);color:#04121a;border-radius:999px;padding:4px 18px;font-size:11px;font-weight:900}
+.plan h3{font-size:17px;font-weight:900}
+.plan .price{font-size:26px;font-weight:900;margin:8px 0 4px}
+.plan .price span{font-size:12px;color:var(--dim);font-weight:500}
+.plan ul{list-style:none;margin:16px 0 22px;flex:1}
+.plan li{display:flex;gap:10px;align-items:center;font-size:13px;padding:6px 0;color:var(--dim)}
+.plan li b{color:var(--text);font-weight:700}
+.plan li .ok{color:var(--cyan)}
+.plan .btn{width:100%}
+@media(max-width:860px){.plan-grid{grid-template-columns:1fr}}
+
+/* سوالات */
+.faq{padding:0 0 60px}
+.faq-list{max-width:800px;margin:0 auto}
+.faq-item{background:var(--card);border:1px solid var(--line);border-radius:16px;margin-bottom:12px;overflow:hidden}
+.faq-item.open{border-color:var(--cyan)}
+.faq-q{width:100%;background:none;border:none;display:flex;justify-content:space-between;align-items:center;gap:14px;padding:18px 22px;font-size:14px;font-weight:800;color:var(--text);text-align:right}
+.faq-q .pm{flex:0 0 30px;height:30px;border-radius:9px;background:rgba(34,211,238,.12);color:var(--cyan);display:grid;place-items:center;font-size:16px;transition:.3s}
+.faq-item.open .pm{transform:rotate(45deg);background:var(--grad);color:#04121a}
+.faq-a{max-height:0;overflow:hidden;transition:max-height .4s}
+.faq-a p{padding:0 22px 20px;font-size:13px;color:var(--dim)}
+
+/* فوتر */
+footer{background:#070a11;border-top:1px solid var(--line);padding:44px 0 0}
+.foot-grid{display:grid;grid-template-columns:1.4fr 1fr 1fr;gap:30px;padding-bottom:32px}
+.foot-grid h4{font-size:15px;font-weight:900;margin-bottom:12px}
+.foot-grid p{font-size:12.5px;color:var(--dim);line-height:2.1}
+.foot-grid a{display:block;font-size:13px;color:var(--dim);padding:4px 0}
+.foot-grid a:hover{color:#fff}
+.foot-bottom{border-top:1px solid var(--line);padding:16px 0;text-align:center;font-size:12px;color:#5f6a84}
+.foot-bottom b{color:var(--cyan)}
+@media(max-width:760px){.foot-grid{grid-template-columns:1fr}}
+
+#toastWrap{position:fixed;bottom:20px;inset-inline-start:20px;z-index:140;display:flex;flex-direction:column;gap:10px}
+.toast{background:var(--card2);border:1px solid var(--cyan);color:var(--text);padding:13px 20px;border-radius:12px;font-size:13px;font-weight:700;box-shadow:var(--shadow);animation:tin .3s}
+.toast.out{opacity:0;transform:translateY(10px);transition:.4s}
+@keyframes tin{from{opacity:0;transform:translateY(14px)}}
+.reveal{opacity:0;transform:translateY(26px);transition:.7s}.reveal.in{opacity:1;transform:none}
+@media(max-width:860px){.styles{grid-template-columns:repeat(3,1fr)}}
+</style>
+</head>
+<body>
+
+<header id="header">
+  <div class="nav">
+    <a class="logo" href="#">
+      <span class="mark"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#04121a" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="4"/><circle cx="9" cy="9" r="2"/><path d="M21 15l-4.5-4.5L7 20"/></svg></span>
+      نقش<i>‌ساز</i>
+    </a>
+    <span class="ai-pill"><span class="dot"></span> متصل به هوش مصنوعی واقعی</span>
+    <nav class="nav-links">
+      <a href="#studio">استودیو</a>
+      <a href="#showcase">نمونه‌کارها</a>
+      <a href="#gallery">گالری من</a>
+      <a href="#plans">تعرفه‌ها</a>
+      <a href="#faq">سوالات</a>
+    </nav>
+    <a href="#studio" class="btn btn-grad" style="padding:11px 22px;font-size:13.5px">✨ ساخت عکس با هوش مصنوعی</a>
+  </div>
+</header>
+
+<section class="hero">
+  <div class="wrap">
+    <div>
+      <span class="hero-chip">🤖 موتور: مدل تصویری Flux — رایگان و بدون کلید</span>
+      <h1>تصورش را بنویس،<br><em>هوش مصنوعی نقاشیش می‌کند!</em></h1>
+      <p>نقش‌ساز به یک هوش مصنوعی واقعی تصویرساز متصل است: متن فارسی‌ات را می‌گیرد، خودش ترجمه می‌کند و در چند ثانیه تصویر یکتا تحویل می‌دهد. هفت سبک، سه نسبت، دانلود مستقیم و گالری شخصی.</p>
+      <div class="hero-actions">
+        <a href="#studio" class="btn btn-grad">🖼 ساخت اولین تصویر</a>
+        <a href="#showcase" class="btn btn-line">نمونه‌کارها</a>
+      </div>
+      <div class="hero-stats">
+        <div class="hstat"><b><i>+</i>۱٫۸M</b><span>تصویر ساخته‌شده</span></div>
+        <div class="hstat"><b>۷</b><span>سبک هنری</span></div>
+        <div class="hstat"><b>~۱۵ ثانیه</b><span>میانگین ساخت</span></div>
+      </div>
+    </div>
+    <div class="hero-visual">
+      <img src="https://image.qwenlm.ai/public_source/fc93599a-2ff8-4151-9d9d-fbad0ce4957e/195291653-d7c3-48e0-b9ea-c7b649824f58.png" alt="هوش مصنوعی در حال ساخت تصویر">
+      <div class="hero-float hf1">🧠 مدل Flux در حال پردازش…</div>
+      <div class="hero-float hf2">⚡ بدون ثبت‌نام، بدون کلید</div>
+    </div>
+  </div>
+</section>
+
+<!-- استودیو -->
+<section class="studio" id="studio">
+  <div class="wrap">
+    <div class="sec-head reveal">
+      <small>استودیوی تصویرسازی</small>
+      <h2>✨ متن به عکس، با هوش مصنوعی واقعی</h2>
+      <p>توصیف صحنه را به فارسی بنویس — نقش‌ساز خودش آن را ترجمه می‌کند و با مدل تصویری به تصویر تبدیل می‌کند</p>
+    </div>
+    <div class="studio-grid">
+      <div class="panel reveal">
+        <h3><span class="ic">✍️</span> توصیف تصویر (پرامپت)</h3>
+        <div class="prompt-row">
+          <textarea id="promptInput" maxlength="300" placeholder="مثلاً: یک روباه قرمز در جنگل مه‌آلود، نور طلایی صبح، سینمایی…"></textarea>
+          <button id="diceBtn" title="ایدهٔ تصادفی">🎲</button>
+        </div>
+
+        <div class="grp-label">موتور تولید</div>
+        <div class="engine-row">
+          <button class="eng active" id="engAi">☁️ هوش مصنوعی واقعی <span class="hint" style="display:block;font-weight:500">مدل Flux — نیاز به اینترنت</span></button>
+          <button class="eng off" id="engLocal">🖥 موتور محلی <span class="hint" style="display:block;font-weight:500">آفلاین و فوری</span></button>
+        </div>
+
+        <div class="grp-label">سبک هنری</div>
+        <div class="styles" id="styleBox"></div>
+
+        <div class="grp-label">نسبت تصویر</div>
+        <div class="ratios" id="ratioBox"></div>
+
+        <div class="opt-row">
+          <label class="switch"><input type="checkbox" id="trChk" checked> ترجمهٔ خودکار پرامپت به انگلیسی</label>
+          <select class="mini" id="modelSel">
+            <option value="flux">مدل: باکیفیت (flux)</option>
+            <option value="turbo">مدل: سریع (turbo)</option>
+          </select>
+        </div>
+
+        <div class="grp-label">خلاقیت موتور (موتور محلی) <b id="creatVal" style="color:var(--cyan)">۶۰٪</b></div>
+        <input type="range" id="creatRange" min="0" max="100" value="60">
+
+        <button class="btn btn-grad gen-btn" id="genBtn">🤖 بساز با هوش مصنوعی!</button>
+      </div>
+
+      <div class="result reveal">
+        <div class="canvas-wrap" id="canvasWrap">
+          <canvas id="artCanvas" class="hidden"></canvas>
+          <div class="placeholder" id="placeholder"><div><span class="em">🖼️</span><b>تصویر هوش مصنوعی اینجا ظاهر می‌شود</b><p style="font-size:12px;margin-top:6px">متن بنویس، سبک انتخاب کن و «بساز» را بزن</p></div></div>
+          <div class="loading" id="loading">
+            <div class="spinner"></div>
+            <div id="loadStep">در حال آماده‌سازی…</div>
+            <div class="load-bar"><i id="loadFill"></i></div>
+            <div id="loadTimer"></div>
+          </div>
+        </div>
+        <div class="res-actions">
+          <button class="primary hidden" id="dlBtn">⬇ دانلود تصویر</button>
+          <button class="hidden" id="rerollBtn">🎲 ساخت نسخهٔ دیگر</button>
+          <button class="hidden" id="saveBtn">💾 ذخیره در گالری</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- نمونه‌کارها -->
+<section class="showcase" id="showcase">
+  <div class="wrap">
+    <div class="sec-head reveal"><small>الهام بگیر</small><h2>نمونه‌کارهای نقش‌ساز</h2><p>روی هر اثر کلیک کن تا پرامپتش بارگذاری و با هوش مصنوعی ساخته شود</p></div>
+    <div class="sc-grid" id="scGrid"></div>
+  </div>
+</section>
+
+<!-- گالری -->
+<section class="gallery" id="gallery">
+  <div class="wrap">
+    <div class="sec-head reveal"><small>ذخیرهٔ محلی</small><h2>🗂 گالری من</h2></div>
+    <div class="gal-grid" id="galGrid"></div>
+  </div>
+</section>
+
+<!-- مراحل -->
+<section class="steps">
+  <div class="wrap">
+    <div class="sec-head reveal"><small>پشت صحنه</small><h2>از کلمه تا تصویر؛ چه اتفاقی می‌افتد؟</h2></div>
+    <div class="steps-grid">
+      <div class="step reveal"><span class="n">۱</span><div class="ic">🌐</div><b>ترجمهٔ هوشمند</b><span>متن فارسی تو به‌صورت خودکار به انگلیسی ترجمه می‌شود تا مدل آن را کامل بفهمد.</span></div>
+      <div class="step reveal"><span class="n">۲</span><div class="ic">🧠</div><b>نقاشی با مدل Flux</b><span>هوش مصنوعی پرامپت و سبک انتخابی را می‌گیرد و تصویری کاملاً جدید خلق می‌کند.</span></div>
+      <div class="step reveal"><span class="n">۳</span><div class="ic">📥</div><b>تحویل و دانلود</b><span>تصویر با کیفیت بالا آماده می‌شود؛ دانلود کن، نسخهٔ دیگر بساز یا در گالری ذخیره کن.</span></div>
+    </div>
+  </div>
+</section>
+
+<!-- تعرفه‌ها -->
+<section class="plans" id="plans">
+  <div class="wrap">
+    <div class="sec-head reveal"><small>تعرفه‌ها</small><h2>برای هر هنرمندی، یک پلن</h2></div>
+    <div class="plan-grid">
+      <div class="plan reveal"><h3>رایگان</h3><div class="price">۰ <span>تومان / ماه</span></div>
+        <ul><li><span class="ok">✔</span> تولید با <b>مدل واقعی</b></li><li><span class="ok">✔</span> هر ۷ سبک هنری</li><li><span class="ok">✔</span> گالری ۱۲ تایی</li><li><span class="ok">✔</span> بدون ثبت‌نام</li></ul>
+        <button class="btn btn-line" data-plan="رایگان">شروع رایگان</button></div>
+      <div class="plan hot reveal"><span class="tag">محبوب‌ترین 🔥</span><h3>خلاق</h3><div class="price">۳۹ <span>هزار تومان / ماه</span></div>
+        <ul><li><span class="ok">✔</span> تصویر <b>نامحدود</b> با اولویت صف</li><li><span class="ok">✔</span> کیفیت ۴K بدون واترمارک</li><li><span class="ok">✔</span> گالری نامحدود + پوشه‌بندی</li><li><span class="ok">✔</span> پرامپت‌ساز هوشمند کمکی</li></ul>
+        <button class="btn btn-grad" data-plan="خلاق">انتخاب پلن خلاق</button></div>
+      <div class="plan reveal"><h3>استودیو</h3><div class="price">تماس <span>بگیرید</span></div>
+        <ul><li><span class="ok">✔</span> API تولید تصویر</li><li><span class="ok">✔</span> مدل اختصاصی برند شما</li><li><span class="ok">✔</span> حق استفادهٔ تجاری کامل</li></ul>
+        <button class="btn btn-line" data-plan="استودیو">درخواست دمو</button></div>
+    </div>
+  </div>
+</section>
+
+<!-- سوالات -->
+<section class="faq" id="faq">
+  <div class="wrap">
+    <div class="sec-head reveal"><small>راهنما</small><h2>سوالات پرتکرار</h2></div>
+    <div class="faq-list">
+      <div class="faq-item reveal"><button class="faq-q">این سایت به چه هوش مصنوعی متصل است؟<span class="pm">+</span></button><div class="faq-a"><p>نقش‌ساز مستقیماً از مرورگر شما به سرویس تصویرسازی رایگان Pollinations با مدل «Flux» متصل می‌شود؛ متن فارسی هم با سرویس ترجمهٔ MyMemory به انگلیسی برمی‌گردد تا بهترین نتیجه را بگیرید. هیچ کلید یا ثبت‌نامی لازم نیست.</p></div></div>
+      <div class="faq-item reveal"><button class="faq-q">چرا ساخت تصویر چند ثانیه طول می‌کشد؟<span class="pm">+</span></button><div class="faq-a"><p>برخلاف موتورهای محلی، هوش مصنوعی واقعی تصویر را از صفر خلق می‌کند؛ معمولاً بین ۵ تا ۳۰ ثانیه. اگر عجله دارید مدل «سریع (turbo)» را انتخاب کنید یا از موتور محلی آفلاین استفاده کنید.</p></div></div>
+      <div class="faq-item reveal"><button class="faq-q">اگر اینترنت قطع باشد چه می‌شود؟<span class="pm">+</span></button><div class="faq-a"><p>اگر اتصال برقرار نشود، نقش‌ساز به‌صورت خودکار با موتور محلی (آفلاین) همان تصویر را می‌سازد تا دست خالی نمانید؛ یا خودتان از ابتدا «موتور محلی» را انتخاب کنید.</p></div></div>
+      <div class="faq-item reveal"><button class="faq-q">چطور نتیجهٔ بهتری بگیرم؟<span class="pm">+</span></button><div class="faq-a"><p>جزئیات بدهید: نور، رنگ، حال‌وهوا و سبک (مثلاً «سینمایی، غروب، فیلم ۳۵ میلی‌متری»). سبک‌های آماده هم پرامپت را حرفه‌ای‌تر می‌کنند. با دکمهٔ «ساخت نسخهٔ دیگر» چند برداشت متفاوت از یک ایده بگیرید.</p></div></div>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap">
+    <div class="foot-grid">
+      <div><h4>نقش‌ساز 🖼</h4><p>ابزار آنلاین تبدیل متن فارسی به تصویر با هوش مصنوعی واقعی؛ متصل به مدل تصویری و سرویس ترجمهٔ رایگان، بدون کلید و ثبت‌نام. نسخهٔ نمایشی — تصاویر توسط سرویس خارجی تولید می‌شوند.</p></div>
+      <div><h4>دسترسی سریع</h4><a href="#studio">استودیو</a><a href="#showcase">نمونه‌کارها</a><a href="#gallery">گالری من</a><a href="#faq">سوالات متداول</a></div>
+      <div><h4>سبک‌ها</h4><a href="#studio">واقع‌گرا</a><a href="#studio">کیهانی</a><a href="#studio">نئون سایبر</a><a href="#studio">آبرنگ</a><a href="#studio">رنگ روغن</a><a href="#studio">پیکسل آرت</a><a href="#studio">مینیمال</a></div>
+    </div>
+    <div class="foot-bottom">© ۱۴۰۵ <b>نقش‌ساز</b> — هر کلمه، یک تصویر؛ با قدرت هوش مصنوعی 🤖</div>
+  </div>
+</footer>
+
+<div id="toastWrap"></div>
+
+<script>
+const $ = s => document.querySelector(s);
+const toFa = s => String(s).replace(/[0-9]/g, d => '۰۱۲۳۴۵۶۷۸۹'[+d]);
+
+/* ---------- ابزار تصادفی با بذر (برای موتور محلی و رول مجدد) ---------- */
+function hashStr(str){ let h=2166136261; for(let i=0;i<str.length;i++){ h^=str.charCodeAt(i); h=Math.imul(h,16777619);} return h>>>0; }
+function mulberry32(a){ return function(){ a|=0; a=a+0x6D2B79F5|0; let t=Math.imul(a^a>>>15,1|a); t=t+Math.imul(t^t>>>7,61|t)^t; return ((t^t>>>14)>>>0)/4294967296; }; }
+const hsla = (h,s,l,a)=>`hsla(${((h%360)+360)%360},${s}%,${l}%,${a})`;
+
+/* ---------- تنظیمات ---------- */
+const STYLES = [
+ {id:'real', name:'واقع‌گرا', em:'📷', suf:'highly detailed, photorealistic, cinematic lighting, 35mm photo'},
+ {id:'cosmic', name:'کیهانی', em:'🌌', suf:'cosmic nebula, dreamy space art, glowing stars, epic digital painting'},
+ {id:'neon', name:'نئون سایبر', em:'🌆', suf:'cyberpunk neon city, glowing neon lights, rain reflections, cinematic'},
+ {id:'water', name:'آبرنگ', em:'🎨', suf:'soft watercolor painting, paper texture, pastel colors, delicate'},
+ {id:'oil', name:'رنگ روغن', em:'🖌️', suf:'oil painting, thick brush strokes, canvas texture, classical'},
+ {id:'pixel', name:'پیکسل آرت', em:'👾', suf:'pixel art, 16-bit retro video game style, vibrant'},
+ {id:'minimal', name:'مینیمال', em:'⬜', suf:'minimalist flat illustration, simple geometric shapes, clean'}
+];
+const AI_RATIOS = { '1:1':{w:1024,h:1024}, '16:9':{w:1280,h:720}, '9:16':{w:720,h:1280} };
+const LOCAL_RATIOS = { '1:1':{w:720,h:720}, '16:9':{w:960,h:540}, '9:16':{w:540,h:960} };
+const RATIOS = [
+ {id:'1:1', bw:14, bh:14},
+ {id:'16:9', bw:18, bh:10},
+ {id:'9:16', bw:10, bh:18}
+];
+let curStyle = 'real', curRatio = '1:1', engine = 'ai', lastArt = null, generating = false;
+
+const PROMPT_IDEAS = [
+ 'یک روباه قرمز در جنگل مه‌آلود با نور طلایی صبح','شهر آینده با برج‌های شیشه‌ای و ماشین‌های پرنده',
+ 'باغ ایرانی با حوض فیروزه‌ای و درختان نارنج','فضانوردی که روی سیاره‌ای بنفش چای می‌نوشد',
+ 'نهنگی شناور میان ابرها در آسمان صورتی','کتابه‌فروشی قدیمی زیر باران با نور گرم چراغ‌ها',
+ 'گربه‌ای سامورایی با شمشیر بامبو در باغ ذن','کویر پرستاره با کاروان شتر و آتش کمپ',
+ 'خانهٔ کوچک چوبی روی درخت بلوط کهن','اقیانوس شب با موج‌های درخشان نورانی'
+];
+
+$('#styleBox').innerHTML = STYLES.map(s=>`<button class="style-chip ${s.id===curStyle?'active':''}" data-st="${s.id}"><span class="em">${s.em}</span>${s.name}</button>`).join('');
+$('#styleBox').querySelectorAll('[data-st]').forEach(b=>b.addEventListener('click',()=>{
+  curStyle = b.dataset.st;
+  document.querySelectorAll('.style-chip').forEach(x=>x.classList.toggle('active', x===b));
+}));
+$('#ratioBox').innerHTML = RATIOS.map(r=>`<button class="ratio ${r.id===curRatio?'active':''}" data-r="${r.id}"><span class="box" style="width:${r.bw}px;height:${r.bh}px"></span>${r.id}</button>`).join('');
+$('#ratioBox').querySelectorAll('[data-r]').forEach(b=>b.addEventListener('click',()=>{
+  curRatio = b.dataset.r;
+  document.querySelectorAll('.ratio').forEach(x=>x.classList.toggle('active', x===b));
+}));
+$('#creatRange').addEventListener('input', e=> $('#creatVal').textContent = toFa(e.target.value)+'٪');
+$('#diceBtn').addEventListener('click', ()=>{
+  $('#promptInput').value = PROMPT_IDEAS[Math.floor(Math.random()*PROMPT_IDEAS.length)];
+  toast('🎲 یک ایدهٔ تازه برایت انتخاب شد!');
+});
+$('#engAi').addEventListener('click', ()=>{ engine='ai'; $('#engAi').classList.add('active'); $('#engLocal').classList.remove('active');
+  $('#genBtn').textContent='🤖 بساز با هوش مصنوعی!'; });
+$('#engLocal').addEventListener('click', ()=>{ engine='local'; $('#engLocal').classList.add('active'); $('#engAi').classList.remove('active');
+  $('#genBtn').textContent='🖥 بساز با موتور محلی'; });
+
+/* ---------- اتصال به هوش مصنوعی ---------- */
+async function translatePrompt(text){
+  try{
+    const r = await fetch('https://api.mymemory.translated.net/get?q='+encodeURIComponent(text.slice(0,400))+'&langpair=fa|en');
+    const j = await r.json();
+    const t = j && j.responseData && j.responseData.translatedText;
+    if(t && t.toUpperCase().indexOf('MYMEMORY') === -1 && t.length>1) return t;
+  }catch(e){}
+  return text;
+}
+function buildAiUrl(finalPrompt, seed, model, w, h){
+  return 'https://image.pollinations.ai/prompt/'+encodeURIComponent(finalPrompt)+
+    '?width='+w+'&height='+h+'&seed='+seed+'&model='+model+'&nologo=true&referrer=naghshsaz';
+}
+function loadAiImage(url){
+  return new Promise((res, rej)=>{
+    const im = new Image();
+    im.onload = ()=>res(im);
+    im.onerror = ()=>rej(new Error('load-failed'));
+    im.src = url;
+  });
+}
+
+/* ---------- موتور محلی (آفلاین) ---------- */
+function renderLocal(cv, o){
+  cv.width = o.w; cv.height = o.h;
+  const ctx = cv.getContext('2d');
+  const rnd = mulberry32(o.seed);
+  const W = o.w, H = o.h, cr = o.creat;
+  const h1 = Math.floor(rnd()*360), h2 = (h1 + 50 + Math.floor(rnd()*90)) % 360;
+  if(o.style==='cosmic'||o.style==='real'){
+    const g = ctx.createLinearGradient(0,0,0,H);
+    g.addColorStop(0,hsla(h1,55,9,1)); g.addColorStop(1,'#05030f');
+    ctx.fillStyle = g; ctx.fillRect(0,0,W,H);
+    ctx.globalCompositeOperation='lighter';
+    const blobs = 10 + Math.floor(cr*14);
+    for(let i=0;i<blobs;i++){
+      const x=rnd()*W, y=rnd()*H, r=(0.12+rnd()*0.3)*W, hh=h2+(rnd()*90-45);
+      const rg = ctx.createRadialGradient(x,y,0,x,y,r);
+      rg.addColorStop(0,hsla(hh,85,60,.26)); rg.addColorStop(1,hsla(hh,85,60,0));
+      ctx.fillStyle = rg; ctx.beginPath(); ctx.arc(x,y,r,0,7); ctx.fill();
+    }
+    ctx.globalCompositeOperation='source-over';
+    for(let i=0;i<300;i++){
+      ctx.globalAlpha=.3+rnd()*.7; ctx.fillStyle='#fff';
+      ctx.beginPath(); ctx.arc(rnd()*W,rnd()*H,rnd()*1.8+.3,0,7); ctx.fill();
+    }
+    ctx.globalAlpha=1;
+  } else if(o.style==='neon'){
+    ctx.fillStyle='#070312'; ctx.fillRect(0,0,W,H);
+    const cols=['#22d3ee','#ec4899','#fbbf24','#a3e635'];
+    for(let i=0;i<10+Math.floor(cr*8);i++){
+      const c=cols[Math.floor(rnd()*cols.length)];
+      ctx.strokeStyle=c; ctx.lineWidth=2; ctx.shadowBlur=14; ctx.shadowColor=c;
+      ctx.strokeRect(rnd()*(W*.8), rnd()*(H*.8), W*(.05+rnd()*.2), H*(.08+rnd()*.35));
+    }
+    ctx.shadowBlur=0;
+    ctx.strokeStyle='rgba(34,211,238,.5)';
+    for(let i=-10;i<=10;i++){ ctx.beginPath(); ctx.moveTo(W/2+i*W*.04,H*.6); ctx.lineTo(W/2+i*W*.28,H+40); ctx.stroke(); }
+  } else if(o.style==='water'){
+    ctx.fillStyle='#f6efe2'; ctx.fillRect(0,0,W,H);
+    ctx.globalCompositeOperation='multiply';
+    for(let i=0;i<18+Math.floor(cr*20);i++){
+      const cx2=rnd()*W, cy2=rnd()*H, base=W*(.06+rnd()*.2), hh=rnd()>.5?h1:h2;
+      for(let j=0;j<6;j++){
+        ctx.fillStyle=hsla(hh+(rnd()*40-20),60,65,.09);
+        ctx.beginPath(); ctx.arc(cx2+(rnd()*base-base/2),cy2+(rnd()*base-base/2),base*(.5+rnd()*.7),0,7); ctx.fill();
+      }
+    }
+    ctx.globalCompositeOperation='source-over';
+  } else if(o.style==='oil'){
+    ctx.fillStyle=hsla(h1,42,50,1); ctx.fillRect(0,0,W,H);
+    ctx.lineCap='round';
+    for(let i=0;i<380+cr*300;i++){
+      const x=rnd()*W, y=rnd()*H, ang=Math.sin(x*.008)*1.6+Math.cos(y*.006)*1.6;
+      ctx.strokeStyle=hsla(h1+rnd()*90-45,50,30+rnd()*44,.6);
+      ctx.lineWidth=5+rnd()*13;
+      ctx.beginPath(); ctx.moveTo(x,y); ctx.lineTo(x+Math.cos(ang)*(14+rnd()*44), y+Math.sin(ang)*(14+rnd()*44)); ctx.stroke();
+    }
+  } else if(o.style==='pixel'){
+    const cell=Math.ceil(Math.min(W,H)/26);
+    const pal=Array.from({length:6},(_,i)=>hsla(h1+i*(30+rnd()*24),60,34+i*10,1));
+    const ctr=Array.from({length:5},()=>({x:rnd()*W,y:rnd()*H,c:Math.floor(rnd()*6)}));
+    for(let y=0;y<H;y+=cell) for(let x=0;x<W;x+=cell){
+      let b=0,bd=1e12; ctr.forEach((c,i)=>{const d=(x-c.x)**2+(y-c.y)**2; if(d<bd){bd=d;b=i;}});
+      ctx.fillStyle=pal[(ctr[b].c+(rnd()>.8?1:0))%6]; ctx.fillRect(x,y,cell,cell);
+    }
+  } else { /* minimal */
+    ctx.fillStyle='#f5f3ee'; ctx.fillRect(0,0,W,H);
+    const acc=hsla(h2,75,55,1), mute=hsla(h1,22,38,1);
+    for(let i=0;i<3+Math.floor(rnd()*3+cr*2);i++){
+      const x=W*(.15+rnd()*.7), y=H*(.15+rnd()*.7), r=Math.min(W,H)*(.08+rnd()*.16);
+      if(rnd()>.5){ ctx.fillStyle=mute; ctx.beginPath(); ctx.arc(x,y,r,0,7); ctx.fill(); }
+      else{ ctx.strokeStyle=mute; ctx.lineWidth=r*.12; ctx.beginPath(); ctx.arc(x,y,r,0,7); ctx.stroke(); }
+    }
+    ctx.fillStyle=acc; ctx.beginPath(); ctx.arc(W*.82,H*.8,Math.min(W,H)*.035,0,7); ctx.fill();
+  }
+  for(let i=0;i<500;i++){ ctx.fillStyle='rgba(255,255,255,.04)'; ctx.fillRect(rnd()*W,rnd()*H,1.6,1.6); }
+}
+
+/* ---------- جریان ساخت ---------- */
+const AI_STEPS = ['ارسال پرامپت به هوش مصنوعی…','مدل در حال خیال‌پردازی است…','رنگ‌آمیزی و جزئیات نهایی…'];
+const LOCAL_STEPS = ['ترکیب‌بندی صحنه…','رنگ‌آمیزی…','جزئیات نهایی…'];
+let loadIv = null, elapsedIv = null;
+
+function setLoading(on, steps){
+  $('#loading').classList.toggle('on', on);
+  if(on){
+    $('#loadStep').textContent = steps[0];
+    $('#loadFill').style.width='6%';
+    let i=0;
+    clearInterval(loadIv);
+    loadIv = setInterval(()=>{
+      i = Math.min(i+1, steps.length-1);
+      $('#loadStep').textContent = steps[i];
+      $('#loadFill').style.width = (10 + (i+1)*(80/steps.length))+'%';
+    }, 1600);
+    const t0 = Date.now();
+    clearInterval(elapsedIv);
+    elapsedIv = setInterval(()=>{
+      $('#loadTimer').textContent = 'زمان سپری‌شده: '+toFa(Math.round((Date.now()-t0)/1000))+' ثانیه';
+    }, 1000);
+  } else {
+    clearInterval(loadIv); clearInterval(elapsedIv);
+  }
+}
+function stopLoading(){ setLoading(false); }
+
+function showResult(){
+  $('#artCanvas').classList.remove('hidden');
+  $('#placeholder').classList.add('hidden');
+  ['#dlBtn','#rerollBtn','#saveBtn'].forEach(id=>$(id).classList.remove('hidden'));
+}
+function finishGen(){
+  generating=false; $('#genBtn').disabled=false;
+}
+
+async function generate(seedOverride){
+  if(generating) return;
+  const prompt = $('#promptInput').value.trim();
+  if(!prompt){ toast('✍️ اول توصیفی از تصویر بنویس!'); $('#promptInput').focus(); return; }
+  generating = true; $('#genBtn').disabled = true;
+  const style = STYLES.find(s=>s.id===curStyle);
+  const seed = seedOverride ?? Math.floor(Math.random()*1e6);
+
+  if(engine === 'local'){
+    setLoading(true, LOCAL_STEPS);
+    setTimeout(()=>{
+      const dim = LOCAL_RATIOS[curRatio];
+      renderLocal($('#artCanvas'), {w:dim.w, h:dim.h, style:curStyle, seed, creat:(+$('#creatRange').value)/100});
+      lastArt = {mode:'local', p:prompt, s:curStyle, r:curRatio, sd:seed, c:(+$('#creatRange').value)/100, url:null, d:new Date().toLocaleDateString('fa-IR')};
+      stopLoading(); showResult(); finishGen();
+      toast('🖼 تصویر با موتور محلی ساخته شد');
+    }, 1400);
+    return;
+  }
+
+  /* موتور هوش مصنوعی */
+  setLoading(true, AI_STEPS);
+  $('#loadStep').textContent = $('#trChk').checked ? 'ترجمهٔ پرامپت به انگلیسی…' : AI_STEPS[0];
+  try{
+    const en = $('#trChk').checked ? await translatePrompt(prompt) : prompt;
+    const finalPrompt = en + ', ' + style.suf;
+    const dim = AI_RATIOS[curRatio];
+    const model = $('#modelSel').value;
+    const url = buildAiUrl(finalPrompt, seed, model, dim.w, dim.h);
+    $('#loadStep').textContent = 'هوش مصنوعی در حال نقاشی است… (معمولاً ۵ تا ۳۰ ثانیه)';
+    const im = await Promise.race([
+      loadAiImage(url),
+      new Promise((_,rej)=>setTimeout(()=>rej(new Error('timeout')), 90000))
+    ]);
+    const cv = $('#artCanvas');
+    cv.width = im.naturalWidth; cv.height = im.naturalHeight;
+    cv.getContext('2d').drawImage(im,0,0);
+    lastArt = {mode:'ai', p:prompt, en:en, s:curStyle, r:curRatio, sd:seed, m:model, url, d:new Date().toLocaleDateString('fa-IR')};
+    stopLoading(); showResult(); finishGen();
+    $('#loadFill').style.width='100%';
+    toast('🤖 هوش مصنوعی تصویر را ساخت! دانلود کن یا نسخهٔ دیگر بساز');
+  }catch(err){
+    stopLoading();
+    toast('⚠ اتصال به هوش مصنوعی برقرار نشد؛ تصویر با موتور محلی ساخته شد');
+    const dim = LOCAL_RATIOS[curRatio];
+    renderLocal($('#artCanvas'), {w:dim.w, h:dim.h, style:curStyle, seed, creat:(+$('#creatRange').value)/100});
+    lastArt = {mode:'local', p:prompt, s:curStyle, r:curRatio, sd:seed, c:(+$('#creatRange').value)/100, url:null, d:new Date().toLocaleDateString('fa-IR')};
+    showResult(); finishGen();
+  }
+}
+$('#genBtn').addEventListener('click', ()=>generate());
+$('#rerollBtn').addEventListener('click', ()=>generate());
+
+/* دانلود */
+$('#dlBtn').addEventListener('click', async ()=>{
+  if(!lastArt) return;
+  try{
+    if(lastArt.mode==='ai' && lastArt.url){
+      const r = await fetch(lastArt.url);
+      const blob = await r.blob();
+      const a = document.createElement('a');
+      a.href = URL.createObjectURL(blob);
+      a.download = 'naghsh-saz-'+lastArt.sd+'.png';
+      a.click();
+      setTimeout(()=>URL.revokeObjectURL(a.href), 5000);
+    } else {
+      const a = document.createElement('a');
+      a.href = $('#artCanvas').toDataURL('image/png');
+      a.download = 'naghsh-saz-'+lastArt.sd+'.png';
+      a.click();
+    }
+    toast('⬇ دانلود تصویر شروع شد');
+  }catch(e){ toast('⚠ دانلود ناموفق بود'); }
+});
+
+/* گالری */
+let gallery = JSON.parse(localStorage.getItem('naghsh_gallery') || '[]');
+function saveGal(){ localStorage.setItem('naghsh_gallery', JSON.stringify(gallery)); }
+$('#saveBtn').addEventListener('click', ()=>{
+  if(!lastArt) return;
+  if(gallery.some(g=>g.sd===lastArt.sd && g.mode===lastArt.mode)){ toast('این تصویر قبلاً ذخیره شده'); return; }
+  /* ساخت بندانگشتی محلی برای ذخیرهٔ آفلاین */
+  const src = $('#artCanvas');
+  const th = document.createElement('canvas');
+  const scale = 220/Math.max(src.width, src.height);
+  th.width = Math.round(src.width*scale); th.height = Math.round(src.height*scale);
+  th.getContext('2d').drawImage(src,0,0,th.width,th.height);
+  const item = {...lastArt, thumb:th.toDataURL('image/jpeg',.72)};
+  try{ gallery.unshift(item); }catch(e){ gallery = [item]; }
+  gallery = gallery.slice(0,12);
+  try{ saveGal(); }catch(e){ gallery=[item]; saveGal(); }
+  renderGallery();
+  toast('💾 در گالری تو ذخیره شد');
+});
+function renderGallery(){
+  const box = $('#galGrid');
+  if(!gallery.length){ box.innerHTML = '<div class="gal-empty">هنوز تصویری ذخیره نکرده‌ای — اولین اثر هوش مصنوعی‌ات را بساز و «ذخیره در گالری» را بزن! ✨</div>'; return; }
+  box.innerHTML='';
+  gallery.forEach((g,idx)=>{
+    const item = document.createElement('div');
+    item.className='gal-item';
+    item.innerHTML = `<img src="${g.thumb}" alt=""><div class="gp">${g.mode==='ai'?'🤖 ':''}${g.p}</div><button class="del" title="حذف">🗑</button>`;
+    item.querySelector('.del').addEventListener('click', e=>{
+      e.stopPropagation(); gallery.splice(idx,1); saveGal(); renderGallery(); toast('از گالری حذف شد');
+    });
+    item.addEventListener('click', ()=>{
+      $('#promptInput').value = g.p;
+      curStyle = g.s; curRatio = g.r;
+      engine = g.mode==='ai' ? 'ai' : 'local';
+      $('#engAi').classList.toggle('active', engine==='ai');
+      $('#engLocal').classList.toggle('active', engine==='local');
+      document.querySelectorAll('.style-chip').forEach(x=>x.classList.toggle('active', x.dataset.st===curStyle));
+      document.querySelectorAll('.ratio').forEach(x=>x.classList.toggle('active', x.dataset.r===curRatio));
+      generate(g.sd);
+      document.getElementById('studio').scrollIntoView({behavior:'smooth'});
+    });
+    box.appendChild(item);
+  });
+}
+renderGallery();
+
+/* نمونه‌کارها */
+const SHOWCASE = [
+ {img:'https://image.qwenlm.ai/public_source/fc93599a-2ff8-4151-9d9d-fbad0ce4957e/1d04ec682-c027-4720-b0b8-3823263d4956.png', p:'کهکشان بنفش با جزیره‌های شناور در مه کیهانی', s:'cosmic', sn:'کیهانی'},
+ {img:'https://image.qwenlm.ai/public_source/fc93599a-2ff8-4151-9d9d-fbad0ce4957e/107d71b85-400d-4c32-9eb8-860e76249ea8.png', p:'خیابان سایبری زیر باران نئون', s:'neon', sn:'نئون سایبر'},
+ {img:'https://image.qwenlm.ai/public_source/fc93599a-2ff8-4151-9d9d-fbad0ce4957e/1314bd8a8-1d27-445e-8f71-c587b8464e54.png', p:'باغ ایرانی با لاله‌های سرخ در نور طلایی', s:'water', sn:'آبرنگ'},
+ {img:'https://image.qwenlm.ai/public_source/fc93599a-2ff8-4151-9d9d-fbad0ce4957e/1c9629d26-175c-49c4-9a9e-3dd8f2a5d8c6.png', p:'انفجار رنگ و اشکال هندسی شناور', s:'minimal', sn:'مینیمال'}
+];
+$('#scGrid').innerHTML = SHOWCASE.map((sc,i)=>`
+  <div class="sc-card reveal in" data-sc="${i}">
+    <img src="${sc.img}" alt="${sc.p}" loading="lazy">
+    <div class="ov"><span class="st">سبک: ${sc.sn}</span><b>${sc.p}</b></div>
+  </div>`).join('');
+$('#scGrid').querySelectorAll('[data-sc]').forEach(c=>c.addEventListener('click',()=>{
+  const sc = SHOWCASE[+c.dataset.sc];
+  $('#promptInput').value = sc.p;
+  curStyle = sc.s; engine = 'ai';
+  $('#engAi').classList.add('active'); $('#engLocal').classList.remove('active');
+  $('#genBtn').textContent='🤖 بساز با هوش مصنوعی!';
+  document.querySelectorAll('.style-chip').forEach(x=>x.classList.toggle('active', x.dataset.st===curStyle));
+  document.getElementById('studio').scrollIntoView({behavior:'smooth'});
+  setTimeout(()=>generate(), 650);
+  toast('🎨 نمونه بارگذاری شد — هوش مصنوعی در حال ساخت نسخهٔ تو!');
+}));
+
+/* تعرفه و سوالات */
+document.querySelectorAll('[data-plan]').forEach(b=>b.addEventListener('click', ()=>toast('✨ پلن «'+b.dataset.plan+'» انتخاب شد — نسخهٔ نمایشی کاملاً رایگان است!')));
+document.querySelectorAll('.faq-item').forEach(item=>{
+  item.querySelector('.faq-q').addEventListener('click', ()=>{
+    const open = item.classList.contains('open');
+    document.querySelectorAll('.faq-item').forEach(x=>{ x.classList.remove('open'); x.querySelector('.faq-a').style.maxHeight=null; });
+    if(!open){ item.classList.add('open'); const a=item.querySelector('.faq-a'); a.style.maxHeight=a.scrollHeight+'px'; }
+  });
+});
+
+/* متفرقه */
+addEventListener('scroll', ()=>$('#header').classList.toggle('scrolled', scrollY>30));
+const rv = new IntersectionObserver(es=>es.forEach(en=>{
+  if(en.isIntersecting){ en.target.classList.add('in'); rv.unobserve(en.target); }
+}),{threshold:.1});
+document.querySelectorAll('.reveal').forEach(el=>rv.observe(el));
+function toast(msg){
+  const t=document.createElement('div'); t.className='toast'; t.textContent=msg;
+  $('#toastWrap').appendChild(t);
+  setTimeout(()=>t.classList.add('out'),3000);
+  setTimeout(()=>t.remove(),3500);
+}
+</script>
+</body>
+</html>
